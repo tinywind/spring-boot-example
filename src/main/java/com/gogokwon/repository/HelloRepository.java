@@ -10,4 +10,5 @@ import java.util.List;
  * @since 2017-03-03
  */
 public interface HelloRepository extends JpaRepository<Hello, Long>{
+    List<Hello> findByName(String name);
 }

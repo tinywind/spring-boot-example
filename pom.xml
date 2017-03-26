@@ -6,28 +6,47 @@
 
 	<groupId>com.gogokwon</groupId>
 	<artifactId>Spring-boot-example</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<!--<version>1.0-SNAPSHOT</version>-->
 
-	<description>스프링 부트 실습</description>
-
+    <description>스프링 부트 실습</description>
+    <url></url>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>${spring.boot.version}</version>
+		<relativePath />
+	</parent>
 	<properties>
 		<java.version>1.8</java.version>
-		<spring.boot.version>1.5.1.RELEASE</spring.boot.version>
+		<!--<spring.boot.version>1.5.1.RELEASE</spring.boot.version>-->
 
 	</properties>
 
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter -->
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<version>${spring.boot.version}</version>
+			<!--<version>${spring.boot.version}</version>-->
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+			<!--<version>8.5.12</version>-->
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId><!--데이터 구조에 대한 정의가 다 들어가있음 -->
-			<version>${spring.boot.version}</version>
+			<!--<version>${spring.boot.version}</version>-->
 		</dependency>
 
 		<dependency>
@@ -42,7 +61,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>${spring.boot.version}</version>
+				<!--<version>${spring.boot.version}</version>-->
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

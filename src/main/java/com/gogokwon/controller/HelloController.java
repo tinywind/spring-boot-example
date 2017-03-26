@@ -3,69 +3,59 @@ package com.gogokwon.controller;
 import com.gogokwon.model.Hello;
 import com.gogokwon.repository.HelloRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
- * Created by KJShin on 2017-03-01.
+ * @author KJShin
+ * @since 2017-03-01
  */
 @RestController
 @RequestMapping("hello")
 public class HelloController {
 
-    //@RequestMapping(value = "hello")
-    @RequestMapping("hello")
-    public String helloPage()
-    {
-        return "Hello World";
-    }
-    /*crud
-    *create
-    *read
+	@Autowired
+	private HelloRepository helloRepository;
+	/* crud
+	* create
+    * read
     * update
     * delete
     */
 
-    @Autowired
-    private HelloRepository helloRepository;
+	//@RequestMapping(value = "hello")
+	//@RequestMapping("hello")
+	//public String helloPage() {return "Hello World";}
 
+	@RequestMapping(method = RequestMethod.GET)
+	public List<Hello> helloList() {
+		return helloRepository.findAll();
+	}
 
+	@RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public void add(@RequestBody Hello hello) {
+		helloRepository.saveAndFlush(hello);
+	}
 
-    @RequestMapping("add")
-    public void add(Hello hello)
-    {
-        helloRepository.saveAndFlush(hello);
-    }
-    /*public void add(String name){
-        Hello hello = new Hello();
+	/*
+	public void add(String name) {
+		Hello hello = new Hello();
         hello.setName(name);
-
         helloRepository.saveAndFlush(hello);
     }*/
+	// url: /hello/1/update?name=신권재
+	@RequestMapping(value = "{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	public void update(@PathVariable Long id, @RequestBody Hello hello) {
+		Hello one = helloRepository.findOne(id);
+		one.setName(hello.getName());
+		helloRepository.flush();
+	}
 
-    @RequestMapping("read")
-    public List<Hello> helloList(){
-        return helloRepository.findAll();
-    }
-
-    // url: /hell/1/updat?name=신권재
-    @RequestMapping("{id}/update")
-    public List<Hello> update(@PathVariable Long id, String name){
-        Hello one = helloRepository.findOne(id);
-        one.setName(name);
-        helloRepository.flush();
-        return helloRepository.findAll();
-    }
-
-
-
-    @RequestMapping("{id}/delete")
-    public List<Hello> delete(@PathVariable Long id){
-        helloRepository.delete(id);
-        helloRepository.flush();
-        return helloRepository.findAll();
-    }
+	@RequestMapping(value = "{id}", method = RequestMethod.DELETE)
+	public void delete(@PathVariable Long id) {
+		helloRepository.delete(id);
+		helloRepository.flush();
+	}
 }

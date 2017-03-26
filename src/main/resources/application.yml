@@ -13,6 +13,10 @@ spring:
       path: /h2-console
   datasource:
     url: jdbc:h2:file:./db
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
 
 
 

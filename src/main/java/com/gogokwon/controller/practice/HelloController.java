@@ -1,4 +1,4 @@
-package com.gogokwon.controller;
+package com.gogokwon.controller.practice;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -7,9 +7,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("hello")
 public class HelloController {
-    @RequestMapping("")
+    // /hello
+    // /hello/material
+    @RequestMapping({"material", ""})
+    public String materialPage(Model model) {
+        model.addAttribute("name", "gogokwon");
+        return "hello/material";
+    }
+
+    @RequestMapping("bootstrap")
     public String indexPage(Model model) {
         model.addAttribute("name", "gogokwon");
-        return "index";
+        return "hello/bootstrap";
     }
 }

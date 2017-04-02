@@ -1,9 +1,7 @@
-package com.gogokwon.controller.api;
+package com.gogokwon.controller.practice.api;
 
 import com.gogokwon.model.Hello;
 import com.gogokwon.repository.HelloRepository;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;

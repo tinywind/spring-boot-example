@@ -178,6 +178,9 @@
 <!-- Theme JavaScript -->
 <script src="js/clean-blog.min.js"></script>
 
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.min.js"></script>
+
 </body>
 
 </html>

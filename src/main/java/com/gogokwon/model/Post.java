@@ -1,52 +1,29 @@
 package com.gogokwon.model;
 
+import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.util.Date;
 
 /**
  * Created by KJShin on 2017-04-09.
  */
+@Data
+@Entity
 public class Post {
-    private String href;
+
+    @Id
+    @GeneratedValue
+    private long id;
     private String title;
     private String subtitle;
-    private Date date;
+    private String content;
+    private Date date = new Date();
 
-    public Post(String href, String title, String subtitle) {
-        this.href = href;
-        this.title = title;
-        this.subtitle = subtitle;
-        this.date = new Date();
-    }
+    private String fileUrl;
 
-    public String getHref() {
-        return href;
-    }
 
-    public void setHref(String href) {
-        this.href = href;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getSubtitle() {
-        return subtitle;
-    }
-
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
 }

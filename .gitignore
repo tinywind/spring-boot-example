@@ -1,5 +1,6 @@
 /.idea
 /target
+/files
 *.class
 *.jar
 *.ear

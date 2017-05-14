@@ -1,13 +1,34 @@
 package com.gogokwon.controller.blog;
 
+import com.gogokwon.model.JoinForm;
 import com.gogokwon.model.Post;
+import com.gogokwon.model.User;
+import com.gogokwon.repository.PostRepository;
+import com.gogokwon.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
+//alt+enter import
+//ctrl + alt + l 자동 정렬
+//alt + insert 코드 자동 생성
+//ctrl + shift + a 기능 도움말
+//shift + shift 파일 이동
 
 /**
  * Created by KJShin on 2017-04-09.
@@ -15,39 +36,161 @@ import java.util.List;
 @Controller
 @RequestMapping("")
 public class BlogController {
+    Logger logger = LoggerFactory.getLogger(BlogController.class);
+
+    @Autowired
+    private PostRepository postRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @RequestMapping("")
-    public String indexPage(Model model){
+    public String indexPage(Model model, @PageableDefault(value = 5, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
         String authorString = "gogokwon";
         String TitleString = "이태원 스포츠";
-        model.addAttribute("title", authorString +" blog");
+        model.addAttribute("title", authorString + " blog");
         model.addAttribute("author", authorString);
         model.addAttribute("intro", "테스트용 블로그입니다.");
-
-        List<Post> posts= new ArrayList<>();
+        Page<Post> posts = postRepository.findAll(pageable);
         model.addAttribute("posts", posts);
-/*
-        Post post1 = new Post();
-        post1.setHref("http://www.google.com");
-        post1.setTitle("Google");
-        post1.setSubtitle("검색 검색 검색 검색 검색 검색 검색 검색 검색 검색 검색 검색 검색 검색 검색 검색 검색 검색 검색 검색 검색 검색 ");
-        post1.setDate(new Date());
-
-
-        Post post2 = new Post();
-        post2.setHref("http://www.yahoo.com");
-        post2.setTitle("Yahoo");
-        post2.setSubtitle("yahoo 검색");
-        post2.setDate(new Date());
-
-
-*/
-        //Post post1 = new Post("http://www.google.com", "google 검색", "잘검색");
-        Post post2 = new Post("http://www.yahoo.com", "yahoo 검색", "잘검색");
-
-        posts.add(new Post("http://www.google.com", "google 검색", "잘검색"));
-        posts.add(post2);
-
         return "index";
     }
+
+    @RequestMapping("about.abc")
+    public String aboutPage(Model model) {
+        return "about";
+    }
+
+    @RequestMapping(value = "post/{id}", method = RequestMethod.GET)
+    public String postPage(Model model, @PathVariable Long id) {
+        if (!(Boolean) model.asMap().get("login")) {
+            return "redirect:/login?to=/post/" + id;
+        }
+
+        Post post = postRepository.findOne(id);
+        model.addAttribute("post", post);
+        return "post";
+    }
+
+    @RequestMapping(value = "post", method = RequestMethod.POST)
+    public String post(Model model, @Valid PostForm form, BindingResult bindingResult, HttpSession session) {
+        if (!form.validate(bindingResult)) {
+            model.addAttribute("bindingResult", bindingResult);
+            return "write";
+        }
+
+        Post post = new Post();
+
+        post.setTitle(form.getTitle());
+        post.setSubtitle(form.getSubtitle());
+        post.setContent(form.getContent());
+
+        MultipartFile file = form.getFile();
+        if (file != null) {
+            String filepath = session.getId() + "/"
+                    + System.currentTimeMillis() + "/"
+                    + file.getOriginalFilename();
+            try {
+                File saveFile = new File(System.getProperty("user.dir") + "/files/" + filepath);
+
+                try {
+                    File dir = saveFile.getParentFile();
+                    dir.mkdirs();
+                } catch (Exception e) {
+
+                }
+
+                file.transferTo(saveFile);
+                post.setFileUrl(filepath);
+            } catch (IOException e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+
+        postRepository.saveAndFlush(post);
+        return "redirect:/";
+    }
+
+    @RequestMapping("contact")
+    public String contactPage(Model model) {
+        return "contact";
+    }
+
+    @RequestMapping("write/{id}")
+    public String modifyPage(Model model, @PathVariable Long id){
+        Post post = postRepository.findOne(id);
+        if(post == null){
+            return "redirect:/";
+        }
+        model.addAttribute("post", post);
+
+        return "write";
+    }
+
+
+    @RequestMapping("write")
+    public String writePage(Model model) {
+        return "write";
+    }
+
+    @RequestMapping("delete/{id}")
+    public String delete(@PathVariable Long id){
+        postRepository.delete(id);
+        postRepository.flush();
+        return "redirect:/";
+    }
+
+    @RequestMapping(value = "login", method = RequestMethod.GET)
+    public String loginPage(HttpSession session, String to) {
+        if (to != null && to.trim().length() > 0)
+            session.setAttribute("to", to);
+        return "login";
+    }
+
+    @RequestMapping(value = "login", method = RequestMethod.POST)
+    public String login(User user, HttpSession session) {
+
+        if (userRepository.findByIdAndPassword(user.getId(), user.getPassword()).isEmpty()) {
+            return "login-fail";
+        }
+        session.setAttribute("user", user);
+
+        Object to = session.getAttribute("to");
+        if (to != null) {
+            session.removeAttribute("to");
+            return "redirect:" + to;
+        }
+        return "redirect:/";
+    }
+
+
+    @RequestMapping(value = "join", method = RequestMethod.GET)
+    public String joinPage(Model model) {
+
+        if (userRepository.findAll().size() != 0) {
+            return "redirect:/";
+        }
+        return "join";
+    }
+
+    @RequestMapping(value = "join", method = RequestMethod.POST)
+    public String join(JoinForm form, Model model, HttpSession session) {
+
+        if (userRepository.findAll().size() != 0) {
+            return "redirect:/";
+        }
+
+        if (!userRepository.findById(form.getId()).isEmpty()) {
+            model.addAttribute("message", "동일 아이디가 이미 존재합니다...");
+            return "join";
+        }
+        User user = new User();
+        user.setId(form.getId());
+        user.setPassword(form.getPassword());
+        userRepository.saveAndFlush(user);
+
+        session.setAttribute("user", user);
+        return "redirect:/";
+    }
+
 }

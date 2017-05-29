@@ -5,7 +5,6 @@
 
 
 <tag:page>
-    <div>로그인에 실패했습니다. 아이디와 패스워드를 확인하세요.</div>
 
     <form method="post" action="/login">
         <input type="text" name = "id"/>

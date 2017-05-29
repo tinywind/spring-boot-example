@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 public class PostForm {
     //getter setter는 lombok에 의해 자동 생성
+    private Long id;
     private String title;
     private String subtitle;
     private String content;

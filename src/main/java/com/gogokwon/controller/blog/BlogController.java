@@ -1,5 +1,6 @@
 package com.gogokwon.controller.blog;
 
+import com.gogokwon.interceptor.LoginRequired;
 import com.gogokwon.model.JoinForm;
 import com.gogokwon.model.Post;
 import com.gogokwon.model.User;
@@ -15,6 +16,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -72,6 +74,7 @@ public class BlogController {
         return "post";
     }
 
+    @LoginRequired
     @RequestMapping(value = "post", method = RequestMethod.POST)
     public String post(Model model, @Valid PostForm form, BindingResult bindingResult, HttpSession session) {
         if (!form.validate(bindingResult)) {
@@ -79,7 +82,11 @@ public class BlogController {
             return "write";
         }
 
-        Post post = new Post();
+        Long id = form.getId();
+        Post post = id != null ? postRepository.findOne(id) : new Post();
+
+        if (post == null)
+            post = new Post();
 
         post.setTitle(form.getTitle());
         post.setSubtitle(form.getSubtitle());
@@ -97,7 +104,6 @@ public class BlogController {
                     File dir = saveFile.getParentFile();
                     dir.mkdirs();
                 } catch (Exception e) {
-
                 }
 
                 file.transferTo(saveFile);
@@ -116,10 +122,11 @@ public class BlogController {
         return "contact";
     }
 
+    @LoginRequired
     @RequestMapping("write/{id}")
-    public String modifyPage(Model model, @PathVariable Long id){
+    public String modifyPage(Model model, @PathVariable Long id) {
         Post post = postRepository.findOne(id);
-        if(post == null){
+        if (post == null) {
             return "redirect:/";
         }
         model.addAttribute("post", post);
@@ -127,14 +134,16 @@ public class BlogController {
         return "write";
     }
 
-
+    @LoginRequired
     @RequestMapping("write")
-    public String writePage(Model model) {
+    public String writePage(Model model, @ModelAttribute("post") Post post) {
+        model.addAttribute("post", new Post());
         return "write";
     }
 
+    @LoginRequired
     @RequestMapping("delete/{id}")
-    public String delete(@PathVariable Long id){
+    public String delete(@PathVariable Long id) {
         postRepository.delete(id);
         postRepository.flush();
         return "redirect:/";
@@ -148,10 +157,11 @@ public class BlogController {
     }
 
     @RequestMapping(value = "login", method = RequestMethod.POST)
-    public String login(User user, HttpSession session) {
+    public String login(Model model, User user, HttpSession session) {
 
         if (userRepository.findByIdAndPassword(user.getId(), user.getPassword()).isEmpty()) {
-            return "login-fail";
+            model.addAttribute("fail", true);
+            return "login";
         }
         session.setAttribute("user", user);
 
@@ -163,6 +173,11 @@ public class BlogController {
         return "redirect:/";
     }
 
+    @RequestMapping("logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
+    }
 
     @RequestMapping(value = "join", method = RequestMethod.GET)
     public String joinPage(Model model) {

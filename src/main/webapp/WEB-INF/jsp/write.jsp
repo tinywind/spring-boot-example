@@ -16,7 +16,9 @@
     </style>
 
     <%--<form action="/post" method="post" enctype="multipart/form-data">--%>
-    <form:form commandNmae="post" action="/post" method="post" enctype="multipart/form-data">
+    <form:form modelAttribute="post" action="/post" method="post" enctype="multipart/form-data">
+        <form:hidden path="id"/>
+
         <div class="md-form">
             <form:input path="title" class="form-control"/>
             <label for="title" class="${bindingResult == null || bindingResult.getFieldErrorCount("title") == 0 ? '':'bind-error'}">Title</label>

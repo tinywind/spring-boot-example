@@ -45,12 +45,12 @@
                 <i class="large material-icons">mode_edit</i>
             </a>
             <ul>
-                <li><a class="btn-floating red" href="/write/${post.id}"><i class="material-icons">insert_chart</i></a></li>
-                <li><a class="btn-floating yellow darken-1" href="/delete/${post.id}"><i class="material-icons">format_quote</i></a></li>
-                <li><a class="btn-floating green" onclick="history.back()"><i class="material-icons">publish</i></a></li>
+                <li><a class="btn-floating red" href="/write/${post.id}"><i class="material-icons">modify</i></a></li>
+                <li><a class="btn-floating yellow darken-1" href="/delete/${post.id}"><i class="material-icons">delete</i></a></li>
+                <li><a class="btn-floating green" onclick="history.back()"><i class="material-icons">back</i></a></li>
 
                 <c:if test="${post.fileUrl != null}">
-                    <li><a class="btn-floating blue" target="_blank" href="/files/${post.fileUrl}"><i class="material-icons">attach_file</i></a></li>
+                    <li><a class="btn-floating blue" target="_blank" href="/files/${post.fileUrl}"><i class="material-icons">file</i></a></li>
                 </c:if>
 
             </ul>
